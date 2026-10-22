@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROBOTIC ADVENTURE: JEJAK PARA SAHABAT NABI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            emerald: '#047857',
+                            emeraldDark: '#022C22',
+                            gold: '#F59E0B',
+                            goldLight: '#FDE047',
+                            neonBlue: '#06B6D4',
+                            neonBlueLight: '#22D3EE',
+                            hudBg: 'rgba(2, 44, 34, 0.85)',
+                            panel: 'rgba(6, 78, 59, 0.45)'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        fredoka: ['Fredoka', 'cursive'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #064e3b 0%, #022c22 70%, #011710 100%);
+            color: #f0fdf4;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-fredoka { font-family: 'Fredoka', cursive; }
+
+        /* Cyber Glassmorphism HUD Panel */
+        .cyber-panel {
+            background: rgba(4, 47, 38, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 12px rgba(6, 182, 212, 0.15);
+        }
+
+        .cyber-panel-gold {
+            background: rgba(47, 35, 4, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 12px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Neon Glows */
+        .neon-text-blue {
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .neon-text-gold {
+            text-shadow: 0 0 8px rgba(245, 158, 11, 0.8), 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .neon-border-blue {
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Animated Grid Overlay */
+        .bg-cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(6, 182, 212, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.07) 1px, transparent 1px);
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-cyber {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.04); opacity: 0.85; }
+        }
+        .animate-cyber-pulse {
+            animation: pulse-cyber 2.5s infinite ease-in-out;
+        }
+
+        /* Robot Mascot Bobbing */
+        @keyframes robot-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .robot-float {
+            animation: robot-float 3s infinite ease-in-out;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(2, 44, 34, 0.8); }
+        ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; }
+
+        /* Program Block Badge */
+        .cmd-block {
+            animation: popIn 0.2s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-cyber-grid flex flex-col justify-between min-h-screen relative p-2 sm:p-4">
+
+    <!-- HEADER HUD -->
+    <header class="w-full max-w-6xl mx-auto cyber-panel rounded-2xl p-3 mb-3 flex flex-wrap items-center justify-between gap-3 z-20">
+        <!-- Logo & App Title -->
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg border border-cyan-300">
+                🤖
+            </div>
+            <div>
+                <h1 class="font-orbitron font-bold text-sm sm:text-base text-cyan-300 tracking-wider neon-text-blue leading-tight">
+                    ROBOTIC ADVENTURE
+                </h1>
+                <p class="text-[11px] text-emerald-200 font-medium">Jejak Para Sahabat Nabi • SD Amaliah</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Header Stats (In-Game Only) -->
+        <div id="headerStats" class="hidden flex items-center gap-3 sm:gap-6 bg-emerald-950/80 px-4 py-1.5 rounded-xl border border-cyan-500/30 text-xs">
+            <div class="flex items-center gap-1.5">
+                <i class="fas fa-trophy text-amber-400"></i>
+                <span class="text-emerald-300">Skor:</span>
+                <span id="hudScore" class="font-orbitron font-bold text-amber-300 text-sm">0</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <i class="fas fa-clock text-cyan-400"></i>
+                <span class="text-emerald-300">Waktu:</span>
+                <span id="hudTimer" class="font-orbitron font-bold text-cyan-300 text-sm">00:00</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <i class="fas fa-battery-three-quarters text-emerald-400"></i>
+                <span id="hudProgress" class="font-bold text-emerald-300">Misi 1/5</span>
+            </div>
+        </div>
+
+        <!-- Sound & Menu Controls -->
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAudio()" class="px-3 py-1.5 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 text-xs font-semibold flex items-center gap-1.5 transition border border-cyan-500/40">
+                <i id="soundIcon" class="fas fa-volume-up text-cyan-300"></i>
+                <span class="hidden sm:inline text-cyan-100">Suara</span>
+            </button>
+            <button onclick="showGuideModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition border border-amber-500/50">
+                <i class="fas fa-book-open"></i>
+                <span class="hidden sm:inline">Panduan</span>
+            </button>
+            <button id="btnHomeHeader" onclick="goHome()" class="hidden px-3 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-500 text-white text-xs font-semibold flex items-center gap-1.5 transition border border-rose-400">
+                <i class="fas fa-home"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center relative z-10">
+
+        <!-- ================= HALAMAN 1: HALAMAN UTAMA ================= -->
+        <section id="homePage" class="cyber-panel rounded-3xl p-6 sm:p-8 text-center max-w-xl mx-auto w-full my-auto border border-cyan-500/50 shadow-2xl relative overflow-hidden">
+            <!-- Digital Arabesque Corner Accents -->
+            <div class="absolute top-2 left-2 text-cyan-500/30 text-2xl font-orbitron">❖</div>
+            <div class="absolute top-2 right-2 text-cyan-500/30 text-2xl font-orbitron">❖</div>
+            <div class="absolute bottom-2 left-2 text-cyan-500/30 text-2xl font-orbitron">❖</div>
+            <div class="absolute bottom-2 right-2 text-cyan-500/30 text-2xl font-orbitron">❖</div>
+
+            <!-- Animated Mascot -->
+            <div class="relative mb-3 flex justify-center">
+                <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-br from-cyan-500/20 via-emerald-600/30 to-amber-500/20 border-2 border-cyan-400 flex items-center justify-center shadow-2xl robot-float relative">
+                    <!-- SVG Cute Islamic Robot -->
+                    <svg class="w-20 h-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Dome / Songkok Antenna -->
+                        <path d="M50 12 L50 22" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="50" cy="10" r="5" fill="#F59E0B"/>
+                        <!-- Robot Head -->
+                        <rect x="25" y="22" width="50" height="40" rx="12" fill="#047857" stroke="#22D3EE" stroke-width="3"/>
+                        <!-- Islamic Crescent Symbol on Head -->
+                        <path d="M48 26 A 5 5 0 1 0 54 32 A 4 4 0 1 1 48 26" fill="#FDE047"/>
+                        <!-- Digital Eyes -->
+                        <rect x="34" y="38" width="10" height="8" rx="4" fill="#06B6D4"/>
+                        <rect x="56" y="38" width="10" height="8" rx="4" fill="#06B6D4"/>
+                        <circle cx="39" cy="42" r="2" fill="#FFFFFF"/>
+                        <circle cx="61" cy="42" r="2" fill="#FFFFFF"/>
+                        <!-- Cute Mouth -->
+                        <path d="M43 53 Q50 58 57 53" stroke="#FDE047" stroke-width="3" stroke-linecap="round" fill="none"/>
+                        <!-- Ears/Headphones -->
+                        <rect x="18" y="32" width="7" height="20" rx="3" fill="#F59E0B"/>
+                        <rect x="75" y="32" width="7" height="20" rx="3" fill="#F59E0B"/>
+                        <!-- Robot Body -->
+                        <path d="M30 65 L70 65 L65 90 L35 90 Z" fill="#022C22" stroke="#06B6D4" stroke-width="3"/>
+                        <!-- Core Gem -->
+                        <polygon points="50,70 56,77 50,84 44,77" fill="#F59E0B"/>
+                    </svg>
+                    <!-- Badge -->
+                    <span class="absolute -bottom-2 bg-amber-500 text-slate-950 font-orbitron text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest shadow-md">R-3000 Sahabat</span>
+                </div>
+            </div>
+
+            <h2 class="font-orbitron font-extrabold text-xl sm:text-2xl text-cyan-300 mb-1 tracking-wider neon-text-blue">
+                ROBOTIC ADVENTURE
+            </h2>
+            <p class="font-fredoka text-lg text-amber-300 mb-2">JEJAK PARA SAHABAT NABI</p>
+            <p class="text-xs text-emerald-100 max-w-md mx-auto mb-6 leading-relaxed">
+                Petualangan edukasi robotik interaktif Islami! Uji pemahaman keteladanan para sahabat Nabi Muhammad ﷺ dan programkan robotmu menembus labirin rintangan!
+            </p>
+
+            <div class="space-y-3 max-w-xs mx-auto">
+                <button onclick="goToModeSelect()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-500 text-slate-950 font-orbitron font-bold text-sm tracking-wider uppercase shadow-xl hover:opacity-95 transition transform active:scale-95 animate-cyber-pulse border border-cyan-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-play text-base"></i> Mulai Petualangan
+                </button>
+                <button onclick="showLeaderboardModal()" class="w-full py-2.5 px-5 rounded-2xl bg-emerald-950/80 hover:bg-emerald-900 text-amber-300 font-fredoka font-semibold text-xs tracking-wide transition border border-amber-500/40 flex items-center justify-center gap-2">
+                    <i class="fas fa-medal text-amber-400"></i> Papan Peringkat (Top Skor)
+                </button>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-cyan-500/20 flex justify-between items-center text-[10px] text-emerald-300/80">
+                <span>Ekstrakurikuler Robotik</span>
+                <span class="font-bold text-amber-300">SD AMALIAH</span>
+            </div>
+        </section>
+
+
+        <!-- ================= HALAMAN 2: PILIH MODE & PENDAFTARAN ================= -->
+        <section id="modePage" class="hidden cyber-panel rounded-3xl p-6 sm:p-8 text-center max-w-lg mx-auto w-full my-auto border border-cyan-500/50 shadow-2xl">
+            <h2 class="font-orbitron font-bold text-lg sm:text-xl text-cyan-300 mb-1 uppercase tracking-wider">
+                Pilih Mode Pertandingan
+            </h2>
+            <p class="text-xs text-emerald-200 mb-5">Tentukan mode bermain dan isi data peserta</p>
+
+            <!-- Mode Selector Cards -->
+            <div class="grid grid-cols-3 gap-2.5 mb-5">
+                <button type="button" id="btnModeSolo" onclick="selectGameMode('solo')" class="mode-card active p-3 rounded-2xl border-2 border-cyan-400 bg-cyan-500/20 text-center transition">
+                    <div class="text-2xl mb-1">🤖</div>
+                    <div class="font-orbitron text-xs font-bold text-cyan-300">SOLO</div>
+                    <div class="text-[10px] text-emerald-200">1 Pemain</div>
+                </button>
+
+                <button type="button" id="btnModeDuel" onclick="selectGameMode('duel')" class="mode-card p-3 rounded-2xl border-2 border-emerald-700 bg-emerald-950/40 text-center transition opacity-60">
+                    <div class="text-2xl mb-1">⚔️</div>
+                    <div class="font-orbitron text-xs font-bold text-amber-300">DUEL</div>
+                    <div class="text-[10px] text-emerald-200">2 Pemain</div>
+                </button>
+
+                <button type="button" id="btnModeTeam" onclick="selectGameMode('team')" class="mode-card p-3 rounded-2xl border-2 border-emerald-700 bg-emerald-950/40 text-center transition opacity-60">
+                    <div class="text-2xl mb-1">🛡️</div>
+                    <div class="font-orbitron text-xs font-bold text-emerald-300">TIM</div>
+                    <div class="text-[10px] text-emerald-200">Tim vs Tim</div>
+                </button>
+            </div>
+
+            <!-- Form Registrasi Pemain -->
+            <form onsubmit="event.preventDefault(); prepareAndStartGame();" class="space-y-3 text-left">
+                <!-- Group Player 1 / Tim A -->
+                <div class="bg-emerald-950/80 p-3 rounded-2xl border border-cyan-500/30 space-y-2">
+                    <label id="lblP1" class="block text-xs font-bold text-cyan-300 uppercase tracking-wider">Nama Pemain 1</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" id="inputP1Name" required maxlength="15" placeholder="Nama lengkap..." class="col-span-2 px-3 py-2 rounded-xl bg-emerald-900/90 border border-emerald-600 focus:border-cyan-400 text-white text-xs outline-none">
+                        <input type="text" id="inputP1Class" required maxlength="8" placeholder="Kelas (4A)" class="px-3 py-2 rounded-xl bg-emerald-900/90 border border-emerald-600 focus:border-cyan-400 text-white text-xs outline-none">
+                    </div>
+                </div>
+
+                <!-- Group Player 2 / Tim B (Kondisional) -->
+                <div id="groupP2" class="hidden bg-emerald-950/80 p-3 rounded-2xl border border-amber-500/30 space-y-2">
+                    <label id="lblP2" class="block text-xs font-bold text-amber-300 uppercase tracking-wider">Nama Pemain 2</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" id="inputP2Name" maxlength="15" placeholder="Nama pemain 2..." class="col-span-2 px-3 py-2 rounded-xl bg-emerald-900/90 border border-emerald-600 focus:border-amber-400 text-white text-xs outline-none">
+                        <input type="text" id="inputP2Class" maxlength="8" placeholder="Kelas (4B)" class="px-3 py-2 rounded-xl bg-emerald-900/90 border border-emerald-600 focus:border-amber-400 text-white text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="goHome()" class="w-1/3 py-3 rounded-2xl bg-emerald-950 hover:bg-emerald-900 text-emerald-200 text-xs font-bold border border-emerald-700 transition">
+                        Kembali
+                    </button>
+                    <button type="submit" class="w-2/3 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-lg hover:opacity-90 transition">
+                        Mulai Misi <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+
+        <!-- ================= HALAMAN 3: GAMEPLAY ARENA ================= -->
+        <section id="gameplayPage" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3 w-full">
+            
+            <!-- PANEL KIRI: NARRATIVE & QUIZ STAGE (5 Cols) -->
+            <div id="quizPanel" class="lg:col-span-5 cyber-panel p-4 rounded-3xl border border-cyan-500/40 flex flex-col justify-between">
+                
+                <!-- Turn Notification Banner (Multiplayer) -->
+                <div id="turnBanner" class="hidden mb-2 p-2 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 font-bold text-xs text-center flex items-center justify-center gap-2">
+                    <i class="fas fa-user-clock"></i>
+                    <span id="turnText">Giliran: Pemain 1</span>
+                </div>
+
+                <!-- Mission Header -->
+                <div>
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-cyan-500/30">
+                        <span id="missionBadge" class="px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-orbitron font-bold text-[10px]">MISI 1</span>
+                        <span id="sahabatCategory" class="text-xs font-bold text-amber-300">Abu Bakar Ash-Shiddiq</span>
+                    </div>
+
+                    <!-- Sahabat Narrative Card -->
+                    <div class="bg-emerald-950/80 p-3 rounded-2xl border border-emerald-600/50 mb-3 flex gap-3 items-start">
+                        <div id="sahabatIcon" class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-emerald-600 text-2xl flex items-center justify-center shadow-md shrink-0 border border-amber-300">
+                            🛡️
+                        </div>
+                        <div>
+                            <h3 id="sahabatTitle" class="font-fredoka font-bold text-amber-300 text-sm">Nilai Keteladanan: Kejujuran</h3>
+                            <p id="sahabatStory" class="text-[11px] text-emerald-100 leading-snug mt-1">
+                                Abu Bakar selalu membenarkan dan jujur mendukung dakwah Rasulullah SAW tanpa ragu...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Question -->
+                    <div class="mb-3">
+                        <p id="quizQuestion" class="text-xs sm:text-sm font-semibold text-white leading-relaxed">
+                            -- Teks Soal --
+                        </p>
+                    </div>
+
+                    <!-- Quiz Options A, B, C, D -->
+                    <div id="quizOptions" class="space-y-2 mb-3">
+                        <!-- Injected via JavaScript -->
+                    </div>
+
+                    <!-- Explanation/Reflection Box -->
+                    <div id="quizFeedback" class="hidden p-3 rounded-2xl text-xs leading-relaxed space-y-1">
+                        <div id="feedbackTitle" class="font-bold font-fredoka text-sm"></div>
+                        <p id="feedbackText" class="text-[11px] text-emerald-100"></p>
+                    </div>
+                </div>
+
+                <!-- Next Phase Button -->
+                <div class="mt-3">
+                    <button id="btnStartMaze" onclick="unlockMazeStage()" disabled class="w-full py-3 rounded-xl bg-slate-800 opacity-50 text-slate-400 font-orbitron font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+                        <span>Lanjut ke Navigasi Robot</span> <i class="fas fa-robot"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PANEL KANAN: PROGRAMMABLE ROBOT MAZE (7 Cols) -->
+            <div id="mazePanel" class="lg:col-span-7 cyber-panel p-4 rounded-3xl border border-cyan-500/40 flex flex-col justify-between relative">
+                
+                <div class="flex justify-between items-center mb-2 pb-2 border-b border-cyan-500/30">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-microchip text-cyan-400"></i>
+                        <span class="font-orbitron font-bold text-xs text-cyan-300">LABIRIN NAVIGASI ROBOT</span>
+                    </div>
+                    <span class="text-[10px] text-emerald-200">Arahkan Robot ke Garis Finis 🚩</span>
+                </div>
+
+                <!-- Canvas Grid Maze Container -->
+                <div class="relative w-full aspect-square max-w-[380px] mx-auto bg-emerald-950/90 rounded-2xl p-2 border-2 border-cyan-500/40 flex items-center justify-center shadow-inner">
+                    <canvas id="mazeCanvas" width="340" height="340" class="rounded-xl"></canvas>
+                    
+                    <!-- Overlay Lock Until Quiz Solved -->
+                    <div id="mazeLockOverlay" class="absolute inset-0 bg-emerald-950/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 text-center z-10">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-2xl text-amber-300 mb-2 animate-bounce">
+                            🔒
+                        </div>
+                        <h4 class="font-orbitron font-bold text-sm text-amber-300 mb-1">Sistem Robot Terkunci</h4>
+                        <p class="text-xs text-emerald-200">Jawab soal kuis Sahabat Nabi di sebelah kiri untuk membuka modul navigasi robot!</p>
+                    </div>
+                </div>
+
+                <!-- Program Execution Controls -->
+                <div class="mt-3 space-y-2">
+                    <!-- Command Queue Bar -->
+                    <div class="bg-emerald-950/90 p-2 rounded-xl border border-cyan-500/30 min-h-[42px] flex items-center justify-between gap-2 overflow-x-auto">
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase shrink-0">Program:</span>
+                        <div id="commandQueue" class="flex items-center gap-1.5 flex-1 overflow-x-auto py-1">
+                            <span class="text-[10px] text-emerald-400/60 italic">Masukkan perintah...</span>
+                        </div>
+                        <button onclick="clearCommands()" class="px-2 py-1 rounded-lg bg-rose-950/80 text-rose-300 hover:bg-rose-900 text-[10px] font-bold shrink-0 border border-rose-800">
+                            Hapus
+                        </button>
+                    </div>
+
+                    <!-- Program Action Buttons -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="addCommand('FORWARD')" class="py-2.5 rounded-xl bg-cyan-600/80 hover:bg-cyan-500 text-white font-bold text-xs flex flex-col items-center justify-center border border-cyan-400">
+                            <i class="fas fa-arrow-up text-sm"></i>
+                            <span class="text-[9px] mt-0.5">Maju</span>
+                        </button>
+                        <button onclick="addCommand('LEFT')" class="py-2.5 rounded-xl bg-teal-600/80 hover:bg-teal-500 text-white font-bold text-xs flex flex-col items-center justify-center border border-teal-400">
+                            <i class="fas fa-undo text-sm"></i>
+                            <span class="text-[9px] mt-0.5">Belok Kiri</span>
+                        </button>
+                        <button onclick="addCommand('RIGHT')" class="py-2.5 rounded-xl bg-teal-600/80 hover:bg-teal-500 text-white font-bold text-xs flex flex-col items-center justify-center border border-teal-400">
+                            <i class="fas fa-redo text-sm"></i>
+                            <span class="text-[9px] mt-0.5">Belok Kanan</span>
+                        </button>
+                        <button id="btnRunProgram" onclick="runRobotProgram()" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-orbitron font-bold text-xs uppercase flex flex-col items-center justify-center shadow-lg border border-amber-300">
+                            <i class="fas fa-play text-sm"></i>
+                            <span class="text-[9px] mt-0.5">Jalankan</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= HALAMAN 4: HASIL & PAPAN PERINGKAT ================= -->
+        <section id="resultPage" class="hidden cyber-panel rounded-3xl p-6 sm:p-8 text-center max-w-lg mx-auto w-full my-auto border border-amber-500/50 shadow-2xl relative">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-600 border-2 border-amber-200 flex items-center justify-center text-4xl mb-3 shadow-xl">
+                🏆
+            </div>
+
+            <h2 class="font-orbitron font-extrabold text-xl sm:text-2xl text-amber-300 mb-1 neon-text-gold">
+                MISI SELESAI!
+            </h2>
+            <p class="text-xs text-emerald-200 mb-4">Selamat! Kamu berhasil menuntaskan Jejak Para Sahabat Nabi</p>
+
+            <!-- Player Badge / Title -->
+            <div class="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-orbitron font-bold text-xs mb-5">
+                🎖️ GELAR: <span id="resBadgeTitle">MASTER ROBOTIC SAHABAT</span>
+            </div>
+
+            <!-- Stats Breakdown -->
+            <div class="bg-emerald-950/80 rounded-2xl p-4 border border-emerald-700/80 mb-6 space-y-2 text-xs">
+                <div class="flex justify-between items-center border-b border-emerald-800 pb-2">
+                    <span class="text-emerald-300">Nama Peserta:</span>
+                    <span id="resPlayerName" class="font-bold text-white text-sm">Ahmad (4A)</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-emerald-800 pb-2">
+                    <span class="text-emerald-300">Jawaban Kuis Benar:</span>
+                    <span id="resQuizScore" class="font-bold text-cyan-300">5 / 5 Soal</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-emerald-800 pb-2">
+                    <span class="text-emerald-300">Waktu Penyelesaian:</span>
+                    <span id="resTime" class="font-bold text-emerald-200">02:45</span>
+                </div>
+                <div class="flex justify-between items-center pt-1">
+                    <span class="text-amber-300 font-bold uppercase">Total Skor Akhir:</span>
+                    <span id="resTotalScore" class="font-orbitron font-bold text-amber-300 text-lg">1250</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="goToModeSelect()" class="py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-lg hover:opacity-90 transition">
+                    <i class="fas fa-redo me-1"></i> Main Lagi
+                </button>
+                <button onclick="showLeaderboardModal()" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs uppercase tracking-wider border border-amber-500/50 transition">
+                    <i class="fas fa-list-ol me-1"></i> Peringkat
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: PANDUAN BERMAIN -->
+    <div id="guideModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="cyber-panel max-w-lg w-full p-6 rounded-3xl border border-cyan-400 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-book-open text-cyan-400 text-lg"></i>
+                    <h3 class="font-orbitron font-bold text-cyan-300 text-base">PANDUAN BERMAIN</h3>
+                </div>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="text-xs text-emerald-100 space-y-3 leading-relaxed">
+                <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700">
+                    <h4 class="font-bold text-amber-300 mb-1">1. Misi Sahabat Nabi (Kuis)</h4>
+                    <p>Jawab pertanyaan seputar keteladanan 5 Sahabat Nabi Muhammad ﷺ. Jawaban benar membuka modul kontrol robot & menambah +100 poin!</p>
+                </div>
+                <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700">
+                    <h4 class="font-bold text-cyan-300 mb-1">2. Pemrograman Robot Labirin</h4>
+                    <p>Susun perintah robot: <b>Maju</b>, <b>Belok Kiri</b>, dan <b>Belok Kanan</b>. Lalu tekan <b>Jalankan Program</b> untuk mengantarkan robot ke garis finis (🚩) tanpa menabrak dinding rintangan.</p>
+                </div>
+                <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-700">
+                    <h4 class="font-bold text-emerald-300 mb-1">3. Mode Permainan</h4>
+                    <p>• <b>Solo</b>: Bermain mandiri menyelesaikan 5 misi.<br>• <b>Duel & Tim</b>: Bergantian giliran menyelesaikan soal dan navigasi labirin!</p>
+                </div>
+            </div>
+
+            <button onclick="closeGuideModal()" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider">
+                Saya Mengerti
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PAPAN PERINGKAT (LEADERBOARD) -->
+    <div id="leaderboardModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="cyber-panel max-w-lg w-full p-6 rounded-3xl border border-amber-400 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-trophy text-amber-400 text-lg"></i>
+                    <h3 class="font-orbitron font-bold text-amber-300 text-base">PAPAN PERINGKAT TOP SKOR</h3>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="leaderboardList" class="space-y-2 text-xs">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <div class="pt-2 flex justify-between gap-3">
+                <button onclick="clearLeaderboard()" class="px-3 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-[10px] font-bold rounded-xl border border-rose-800">
+                    Reset Papan Skor
+                </button>
+                <button onclick="closeLeaderboardModal()" class="px-5 py-2 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl uppercase">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SYNTHESIZED WEB AUDIO ENGINE -->
+    <script>
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'step') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
+            } else if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now); osc.stop(now + 0.35);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(160, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'bump') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(120, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'win') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554.37, now + 0.12);
+                osc.frequency.setValueAtTime(659.25, now + 0.24);
+                osc.frequency.setValueAtTime(880, now + 0.36);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now); osc.stop(now + 0.6);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').className = soundEnabled ? 'fas fa-volume-up text-cyan-300' : 'fas fa-volume-mute text-slate-500';
+        }
+    </script>
+
+    <!-- DATA SOAL & MAZE GAME ENGINE -->
+    <script>
+        // 1. DATA MISI 5 SAHABAT NABI
+        const missionData = [
+            {
+                id: 1,
+                sahabat: "Abu Bakar Ash-Shiddiq",
+                title: "Nilai Keteladanan: Kejujuran & Kesetiaan",
+                icon: "🛡️",
+                story: "Abu Bakar R.A. adalah orang dewasa pertama yang memeluk Islam. Beliau selalu jujur dan membenarkan setiap perkataan Nabi Muhammad ﷺ.",
+                question: "Gelar 'Ash-Shiddiq' yang diberikan kepada Abu Bakar R.A. memiliki arti...",
+                options: [
+                    "Orang yang sangat jujur dan membenarkan",
+                    "Panglima perang yang tangguh",
+                    "Penulis wahyu Al-Qur'an",
+                    "Saudagar yang kaya raya"
+                ],
+                correct: 0,
+                edu: "MasyaAllah! Gelar Ash-Shiddiq diberikan karena beliau selalu jujur dan tanpa ragu membenarkan peristiwa Isra Mi'raj Nabi Muhammad ﷺ.",
+                gridSize: 5,
+                walls: [{x: 1, y: 1}, {x: 2, y: 1}, {x: 3, y: 3}],
+                start: {x: 0, y: 0, dir: 'EAST'}, // DIR: NORTH, EAST, SOUTH, WEST
+                finish: {x: 4, y: 4}
+            },
+            {
+                id: 2,
+                sahabat: "Umar bin Khattab",
+                title: "Nilai Keteladanan: Keberanian & Keadilan",
+                icon: "⚔️",
+                story: "Umar bin Khattab R.A. terkenal dengan ketegasannya membela kebenaran dan keadilannya memimpin rakyat tanpa pandang bulu.",
+                question: "Umar bin Khattab R.A. mendapat julukan 'Al-Faruq', yang artinya...",
+                options: [
+                    "Pemimpin yang lemah lembut",
+                    "Pemisah antara kebenaran dan kebatilan",
+                    "Penjaga harta baitul mal",
+                    "Dermawan yang derma"
+                ],
+                correct: 1,
+                edu: "Luar biasa! Al-Faruq berarti pembeda, karena beliau sangat tegas membedakan mana yang haq (benar) dan yang batil (salah).",
+                gridSize: 5,
+                walls: [{x: 2, y: 0}, {x: 2, y: 1}, {x: 2, y: 2}, {x: 0, y: 3}],
+                start: {x: 0, y: 0, dir: 'SOUTH'},
+                finish: {x: 4, y: 2}
+            },
+            {
+                id: 3,
+                sahabat: "Utsman bin Affan",
+                title: "Nilai Keteladanan: Kedermawanan & Kesantunan",
+                icon: "💎",
+                story: "Utsman bin Affan R.A. adalah sahabat kaya raya yang menggunakan seluruh hartanya untuk perjuangan Islam, seperti membeli Sumur Raumah.",
+                question: "Salah satu kedermawanan besar Utsman bin Affan R.A. untuk membantu masyarakat Madinah yang kekeringan adalah...",
+                options: [
+                    "Membangun benteng pertahanan",
+                    "Membeli Sumur Raumah dan mewakafkannya",
+                    "Membuat perahu perdagangan",
+                    "Menulis buku sejarah Islam"
+                ],
+                correct: 1,
+                edu: "Hebat! Utsman R.A. membeli sumur milik Yahudi dengan harga mahal lalu mewakafkannya agar seluruh warga Madinah bisa mengambil air gratis.",
+                gridSize: 5,
+                walls: [{x: 1, y: 2}, {x: 2, y: 2}, {x: 3, y: 2}, {x: 3, y: 1}],
+                start: {x: 0, y: 0, dir: 'EAST'},
+                finish: {x: 4, y: 0}
+            },
+            {
+                id: 4,
+                sahabat: "Zaid bin Tsabit",
+                title: "Nilai Keteladanan: Kecerdasan & Pengabdian Ilmu",
+                icon: "📜",
+                story: "Zaid bin Tsabit R.A. adalah pemuda yang sangat cerdas. Beliau menguasai berbagai bahasa dan ditunjuk memimpin penghimpunan Al-Qur'an.",
+                question: "Tugas mulia dan penting yang diamanahkan kepada Zaid bin Tsabit R.A. pada masa Khalifah Abu Bakar adalah...",
+                options: [
+                    "Mengumpulkan dan membukukan Al-Qur'an",
+                    "Memimpin pasukan ekspedisi ke Syam",
+                    "Menjadi hakim di kota Makkah",
+                    "Membuat sistem mata uang"
+                ],
+                correct: 0,
+                edu: "Tepat sekali! Kecerdasan dan ketelitian Zaid R.A. membuatnya dipercaya mengetuai kodifikasi Al-Qur'an menjadi lembaran mushaf.",
+                gridSize: 5,
+                walls: [{x: 1, y: 0}, {x: 1, y: 1}, {x: 3, y: 2}, {x: 3, y: 3}, {x: 3, y: 4}],
+                start: {x: 0, y: 0, dir: 'SOUTH'},
+                finish: {x: 4, y: 4}
+            },
+            {
+                id: 5,
+                sahabat: "Khalid bin Walid",
+                title: "Nilai Keteladanan: Strategi & Keberanian",
+                icon: "🏹",
+                story: "Khalid bin Walid R.A. adalah taktikawan militer genius. Beliau berjuang bukan demi ketenaran, melainkan murni mengharap ridha Allah SWT.",
+                question: "Julukan 'Saifullah Al-Maslul' yang diberikan Rasulullah SAW kepada Khalid bin Walid R.A. berarti...",
+                options: [
+                    "Perisai Pelindung Ummat",
+                    "Pedang Allah yang Terhunus",
+                    "Panah Emas dari Langit",
+                    "Singa Padang Pasir"
+                ],
+                correct: 1,
+                edu: "Subhanallah! Gelar Pedang Allah yang Terhunus melambangkan keberanian dan kepiawaian taktik perang beliau membela Islam.",
+                gridSize: 5,
+                walls: [{x: 0, y: 2}, {x: 1, y: 2}, {x: 2, y: 2}, {x: 3, y: 2}, {x: 1, y: 4}],
+                start: {x: 0, y: 0, dir: 'EAST'},
+                finish: {x: 2, y: 4}
+            }
+        ];
+
+        // GAME STATE MANAGEMENT
+        let currentMode = 'solo'; // 'solo', 'duel', 'team'
+        let players = [
+            { name: "Pemain 1", class: "4A", score: 0, quizCorrect: 0 },
+            { name: "Pemain 2", class: "4B", score: 0, quizCorrect: 0 }
+        ];
+        let activePlayerIdx = 0;
+        let currentMissionIdx = 0;
+        let totalTimerSeconds = 0;
+        let timerInterval = null;
+        let quizAnswered = false;
+
+        // ROBOT PROGRAMMING STATE
+        let robotState = { x: 0, y: 0, dir: 'EAST' };
+        let commandQueue = [];
+        let isRunningProgram = false;
+
+        // CANVAS ENGINE
+        const canvas = document.getElementById('mazeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        window.addEventListener('load', () => {
+            renderLeaderboard();
+        });
+
+        // NAVIGATION & MODE SELECT
+        function goHome() {
+            playSound('click');
+            clearInterval(timerInterval);
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('modePage').classList.add('hidden');
+            document.getElementById('gameplayPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('headerStats').classList.add('hidden');
+            document.getElementById('btnHomeHeader').classList.add('hidden');
+        }
+
+        function goToModeSelect() {
+            playSound('click');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('modePage').classList.remove('hidden');
+            document.getElementById('resultPage').classList.add('hidden');
+        }
+
+        function selectGameMode(mode) {
+            playSound('click');
+            currentMode = mode;
+            
+            const btnSolo = document.getElementById('btnModeSolo');
+            const btnDuel = document.getElementById('btnModeDuel');
+            const btnTeam = document.getElementById('btnModeTeam');
+            const groupP2 = document.getElementById('groupP2');
+            const lblP1 = document.getElementById('lblP1');
+            const lblP2 = document.getElementById('lblP2');
+
+            btnSolo.className = "mode-card p-3 rounded-2xl border-2 border-emerald-700 bg-emerald-950/40 text-center transition opacity-60";
+            btnDuel.className = "mode-card p-3 rounded-2xl border-2 border-emerald-700 bg-emerald-950/40 text-center transition opacity-60";
+            btnTeam.className = "mode-card p-3 rounded-2xl border-2 border-emerald-700 bg-emerald-950/40 text-center transition opacity-60";
+
+            if (mode === 'solo') {
+                btnSolo.className = "mode-card active p-3 rounded-2xl border-2 border-cyan-400 bg-cyan-500/20 text-center transition";
+                groupP2.classList.add('hidden');
+                lblP1.innerText = "Nama Pemain";
+            } else if (mode === 'duel') {
+                btnDuel.className = "mode-card active p-3 rounded-2xl border-2 border-amber-400 bg-amber-500/20 text-center transition";
+                groupP2.classList.remove('hidden');
+                lblP1.innerText = "Nama Pemain 1";
+                lblP2.innerText = "Nama Pemain 2";
+            } else if (mode === 'team') {
+                btnTeam.className = "mode-card active p-3 rounded-2xl border-2 border-emerald-400 bg-emerald-500/20 text-center transition";
+                groupP2.classList.remove('hidden');
+                lblP1.innerText = "Nama Tim A";
+                lblP2.innerText = "Nama Tim B";
+            }
+        }
+
+        function prepareAndStartGame() {
+            playSound('click');
+            const p1Name = document.getElementById('inputP1Name').value.trim() || "Pemain 1";
+            const p1Class = document.getElementById('inputP1Class').value.trim() || "4 SD";
+
+            players[0] = { name: p1Name, class: p1Class, score: 0, quizCorrect: 0 };
+
+            if (currentMode !== 'solo') {
+                const p2Name = document.getElementById('inputP2Name').value.trim() || (currentMode === 'team' ? "Tim B" : "Pemain 2");
+                const p2Class = document.getElementById('inputP2Class').value.trim() || "4 SD";
+                players[1] = { name: p2Name, class: p2Class, score: 0, quizCorrect: 0 };
+            }
+
+            activePlayerIdx = 0;
+            currentMissionIdx = 0;
+            totalTimerSeconds = 0;
+
+            document.getElementById('modePage').classList.add('hidden');
+            document.getElementById('gameplayPage').classList.remove('hidden');
+            document.getElementById('headerStats').classList.remove('hidden');
+            document.getElementById('btnHomeHeader').classList.remove('hidden');
+
+            startGlobalTimer();
+            loadMission(currentMissionIdx);
+        }
+
+        function startGlobalTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                totalTimerSeconds++;
+                const mins = String(Math.floor(totalTimerSeconds / 60)).padStart(2, '0');
+                const secs = String(totalTimerSeconds % 60).padStart(2, '0');
+                document.getElementById('hudTimer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // LOAD MISSION & QUIZ
+        function loadMission(mIdx) {
+            const m = missionData[mIdx];
+            quizAnswered = false;
+            commandQueue = [];
+            updateCommandUI();
+
+            // Update Header HUD
+            document.getElementById('hudProgress').innerText = `Misi ${mIdx + 1}/5`;
+            document.getElementById('hudScore').innerText = players[activePlayerIdx].score;
+
+            // Update Turn Banner (Multiplayer)
+            const turnBanner = document.getElementById('turnBanner');
+            if (currentMode !== 'solo') {
+                turnBanner.classList.remove('hidden');
+                document.getElementById('turnText').innerText = `Giliran: ${players[activePlayerIdx].name}`;
+            } else {
+                turnBanner.classList.add('hidden');
+            }
+
+            // Quiz Info
+            document.getElementById('missionBadge').innerText = `MISI ${mIdx + 1}`;
+            document.getElementById('sahabatCategory').innerText = m.sahabat;
+            document.getElementById('sahabatIcon').innerText = m.icon;
+            document.getElementById('sahabatTitle').innerText = m.title;
+            document.getElementById('sahabatStory').innerText = m.story;
+            document.getElementById('quizQuestion').innerText = m.question;
+
+            // Render Options
+            const optBox = document.getElementById('quizOptions');
+            optBox.innerHTML = '';
+            document.getElementById('quizFeedback').classList.add('hidden');
+
+            m.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-2.5 text-left rounded-xl bg-emerald-950/80 border border-emerald-600/80 hover:border-cyan-400 text-xs transition flex items-center gap-2";
+                btn.innerHTML = `<span class="w-5 h-5 rounded-full bg-emerald-800 text-cyan-300 flex items-center justify-center font-bold text-[10px] shrink-0">${String.fromCharCode(65 + idx)}</span> <span>${optText}</span>`;
+                btn.onclick = () => handleQuizAnswer(idx, m);
+                optBox.appendChild(btn);
+            });
+
+            // Lock Maze
+            document.getElementById('mazeLockOverlay').classList.remove('hidden');
+            const btnMaze = document.getElementById('btnStartMaze');
+            btnMaze.disabled = true;
+            btnMaze.className = "w-full py-3 rounded-xl bg-slate-800 opacity-50 text-slate-400 font-orbitron font-bold text-xs uppercase flex items-center justify-center gap-2";
+
+            // Init Robot
+            robotState = { ...m.start };
+            drawMaze();
+        }
+
+        function handleQuizAnswer(chosenIdx, mission) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const feedback = document.getElementById('quizFeedback');
+            const fbTitle = document.getElementById('feedbackTitle');
+            const fbText = document.getElementById('feedbackText');
+            feedback.classList.remove('hidden');
+
+            const allBtns = document.querySelectorAll('#quizOptions button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (chosenIdx === mission.correct) {
+                playSound('correct');
+                players[activePlayerIdx].score += 100;
+                players[activePlayerIdx].quizCorrect++;
+                document.getElementById('hudScore').innerText = players[activePlayerIdx].score;
+
+                feedback.className = "p-3 rounded-2xl text-xs leading-relaxed space-y-1 bg-emerald-900/90 border border-emerald-400 text-emerald-100";
+                fbTitle.innerText = "✅ JAWABAN BENAR! (+100 Poin)";
+                fbText.innerText = mission.edu;
+
+                allBtns[chosenIdx].className = "w-full p-2.5 text-left rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 border border-emerald-300";
+            } else {
+                playSound('wrong');
+                feedback.className = "p-3 rounded-2xl text-xs leading-relaxed space-y-1 bg-rose-900/90 border border-rose-400 text-rose-100";
+                fbTitle.innerText = "❌ KURANG TEPAT!";
+                fbText.innerText = mission.edu;
+
+                allBtns[chosenIdx].className = "w-full p-2.5 text-left rounded-xl bg-rose-800 text-white font-bold text-xs flex items-center gap-2 border border-rose-400";
+                allBtns[mission.correct].className = "w-full p-2.5 text-left rounded-xl bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 border border-emerald-300";
+            }
+
+            // Enable Robot Maze Stage
+            const btnMaze = document.getElementById('btnStartMaze');
+            btnMaze.disabled = false;
+            btnMaze.className = "w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-orbitron font-bold text-xs uppercase shadow-lg hover:opacity-90 transition flex items-center justify-center gap-2 animate-cyber-pulse";
+        }
+
+        function unlockMazeStage() {
+            playSound('click');
+            document.getElementById('mazeLockOverlay').classList.add('hidden');
+        }
+
+        // ROBOT PROGRAMMING & CANVAS MAZE LOGIC
+        function addCommand(cmd) {
+            if (isRunningProgram || document.getElementById('mazeLockOverlay').classList.contains('hidden') === false) return;
+            if (commandQueue.length >= 8) return;
+            playSound('click');
+            commandQueue.push(cmd);
+            updateCommandUI();
+        }
+
+        function clearCommands() {
+            if (isRunningProgram) return;
+            playSound('click');
+            commandQueue = [];
+            updateCommandUI();
+        }
+
+        function updateCommandUI() {
+            const queueBox = document.getElementById('commandQueue');
+            if (commandQueue.length === 0) {
+                queueBox.innerHTML = '<span class="text-[10px] text-emerald-400/60 italic">Masukkan perintah...</span>';
+                return;
+            }
+
+            queueBox.innerHTML = '';
+            commandQueue.forEach((cmd, idx) => {
+                const badge = document.createElement('span');
+                badge.className = "cmd-block px-2 py-0.5 rounded-md bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-bold text-[9px] uppercase shrink-0";
+                let label = "Maju";
+                if (cmd === 'LEFT') label = "Kiri";
+                if (cmd === 'RIGHT') label = "Kanan";
+                badge.innerText = `${idx + 1}. ${label}`;
+                queueBox.appendChild(badge);
+            });
+        }
+
+        function runRobotProgram() {
+            if (isRunningProgram || commandQueue.length === 0) return;
+            if (document.getElementById('mazeLockOverlay').classList.contains('hidden') === false) return;
+
+            isRunningProgram = true;
+            document.getElementById('btnRunProgram').disabled = true;
+
+            let stepIdx = 0;
+            const m = missionData[currentMissionIdx];
+
+            const interval = setInterval(() => {
+                if (stepIdx >= commandQueue.length) {
+                    clearInterval(interval);
+                    isRunningProgram = false;
+                    document.getElementById('btnRunProgram').disabled = false;
+                    checkRobotFinish(m);
+                    return;
+                }
+
+                const cmd = commandQueue[stepIdx];
+                executeCommandStep(cmd, m);
+                drawMaze();
+                stepIdx++;
+            }, 500);
+        }
+
+        function executeCommandStep(cmd, mission) {
+            const dirs = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
+            let dirIdx = dirs.indexOf(robotState.dir);
+
+            if (cmd === 'LEFT') {
+                playSound('step');
+                dirIdx = (dirIdx + 3) % 4;
+                robotState.dir = dirs[dirIdx];
+            } else if (cmd === 'RIGHT') {
+                playSound('step');
+                dirIdx = (dirIdx + 1) % 4;
+                robotState.dir = dirs[dirIdx];
+            } else if (cmd === 'FORWARD') {
+                let nextX = robotState.x;
+                let nextY = robotState.y;
+
+                if (robotState.dir === 'NORTH') nextY--;
+                if (robotState.dir === 'EAST') nextX++;
+                if (robotState.dir === 'SOUTH') nextY++;
+                if (robotState.dir === 'WEST') nextX--;
+
+                // Check Wall Collision or Boundary
+                const isWall = mission.walls.some(w => w.x === nextX && w.y === nextY);
+                if (nextX < 0 || nextX >= 5 || nextY < 0 || nextY >= 5 || isWall) {
+                    playSound('bump');
+                } else {
+                    playSound('step');
+                    robotState.x = nextX;
+                    robotState.y = nextY;
+                }
+            }
+        }
+
+        function checkRobotFinish(mission) {
+            if (robotState.x === mission.finish.x && robotState.y === mission.finish.y) {
+                playSound('correct');
+                players[activePlayerIdx].score += 150; // Bonus Navigation Score
+                document.getElementById('hudScore').innerText = players[activePlayerIdx].score;
+
+                setTimeout(() => {
+                    alert(`🎉 MasyaAllah! Robot berhasil mencapai garis finis! (+150 Poin Bonus Navigasi)`);
+                    advanceGameTurn();
+                }, 300);
+            } else {
+                playSound('wrong');
+                alert(`⚠️ Robot belum sampai di garis finis! Coba atur ulang perintah programmu.`);
+            }
+        }
+
+        function advanceGameTurn() {
+            if (currentMode !== 'solo') {
+                activePlayerIdx = activePlayerIdx === 0 ? 1 : 0;
+            }
+
+            currentMissionIdx++;
+            if (currentMissionIdx < missionData.length) {
+                loadMission(currentMissionIdx);
+            } else {
+                finishGame();
+            }
+        }
+
+        // DRAW CANVAS MAZE
+        function drawMaze() {
+            const m = missionData[currentMissionIdx];
+            const size = 5;
+            const cellSize = canvas.width / size;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid Cells
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.2)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+
+                    // Cell Background Alternating
+                    if ((r + c) % 2 === 0) {
+                        ctx.fillStyle = 'rgba(4, 120, 87, 0.15)';
+                        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+
+            // Draw Obstacle Walls
+            m.walls.forEach(w => {
+                ctx.fillStyle = 'rgba(225, 29, 72, 0.6)';
+                ctx.fillRect(w.x * cellSize + 4, w.y * cellSize + 4, cellSize - 8, cellSize - 8);
+                ctx.strokeStyle = '#F43F5E';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(w.x * cellSize + 4, w.y * cellSize + 4, cellSize - 8, cellSize - 8);
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '14px Orbitron';
+                ctx.fillText('🚧', w.x * cellSize + cellSize / 2 - 8, w.y * cellSize + cellSize / 2 + 5);
+            });
+
+            // Draw Finish Beacon 🚩
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+            ctx.beginPath();
+            ctx.arc(m.finish.x * cellSize + cellSize / 2, m.finish.y * cellSize + cellSize / 2, cellSize / 2 - 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = '22px Arial';
+            ctx.fillText('🚩', m.finish.x * cellSize + cellSize / 2 - 12, m.finish.y * cellSize + cellSize / 2 + 8);
+
+            // Draw Robot 🤖
+            const rx = robotState.x * cellSize + cellSize / 2;
+            const ry = robotState.y * cellSize + cellSize / 2;
+
+            ctx.save();
+            ctx.translate(rx, ry);
+
+            // Rotate based on direction
+            if (robotState.dir === 'EAST') ctx.rotate(Math.PI / 2);
+            if (robotState.dir === 'SOUTH') ctx.rotate(Math.PI);
+            if (robotState.dir === 'WEST') ctx.rotate(-Math.PI / 2);
+
+            // Robot Body Circle
+            ctx.fillStyle = '#06B6D4';
+            ctx.beginPath();
+            ctx.arc(0, 0, cellSize / 2 - 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#FDE047';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Direction Pointer Triangle
+            ctx.fillStyle = '#F59E0B';
+            ctx.beginPath();
+            ctx.moveTo(0, -cellSize / 2 + 6);
+            ctx.lineTo(-8, -2);
+            ctx.lineTo(8, -2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // FINISH GAME & LEADERBOARD
+        function finishGame() {
+            clearInterval(timerInterval);
+            playSound('win');
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            }
+
+            document.getElementById('gameplayPage').classList.add('hidden');
+            document.getElementById('headerStats').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+
+            // Winner Calculation
+            let topPlayer = players[0];
+            if (currentMode !== 'solo' && players[1].score > players[0].score) {
+                topPlayer = players[1];
+            }
+
+            // Assign Title Badge
+            let badgeTitle = "PIONIR ROBOTIK YOUNG MUSLIM";
+            if (topPlayer.score >= 1100) badgeTitle = "MASTER ROBOTIC SAHABAT";
+            else if (topPlayer.score >= 800) badgeTitle = "KSATRIA ROBOTIK ISLAMI";
+
+            document.getElementById('resBadgeTitle').innerText = badgeTitle;
+            document.getElementById('resPlayerName').innerText = `${topPlayer.name} (${topPlayer.class})`;
+            document.getElementById('resQuizScore').innerText = `${topPlayer.quizCorrect} / 5 Soal`;
+
+            const mins = String(Math.floor(totalTimerSeconds / 60)).padStart(2, '0');
+            const secs = String(totalTimerSeconds % 60).padStart(2, '0');
+            document.getElementById('resTime').innerText = `${mins}:${secs}`;
+            document.getElementById('resTotalScore').innerText = topPlayer.score;
+
+            // Save Leaderboard Entry
+            saveScoreToLeaderboard(topPlayer.name, topPlayer.class, topPlayer.score, badgeTitle);
+        }
+
+        function saveScoreToLeaderboard(name, pClass, score, title) {
+            let leaderboard = JSON.parse(localStorage.getItem('robotic_sahabat_lb') || '[]');
+            leaderboard.push({ name, class: pClass, score, title, date: new Date().toLocaleDateString('id-ID') });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10); // Keep top 10
+            localStorage.setItem('robotic_sahabat_lb', JSON.stringify(leaderboard));
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            const leaderboard = JSON.parse(localStorage.getItem('robotic_sahabat_lb') || '[]');
+
+            if (leaderboard.length === 0) {
+                list.innerHTML = '<p class="text-center text-emerald-300/60 py-4 italic">Belum ada data skor. Jadilah yang pertama!</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            leaderboard.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center bg-emerald-950/80 p-2.5 rounded-xl border border-emerald-700/60";
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-slate-950' : 'bg-emerald-800 text-cyan-300'} flex items-center justify-center font-bold text-xs shrink-0">${idx + 1}</span>
+                        <div>
+                            <div class="font-bold text-white text-xs">${item.name} <span class="text-[10px] text-emerald-300">(${item.class})</span></div>
+                            <div class="text-[9px] text-amber-300/90">${item.title}</div>
+                        </div>
+                    </div>
+                    <span class="font-orbitron font-bold text-amber-300 text-xs">${item.score} pts</span>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function clearLeaderboard() {
+            if (confirm("Apakah Anda yakin ingin menghapus papan peringkat?")) {
+                localStorage.removeItem('robotic_sahabat_lb');
+                renderLeaderboard();
+            }
+        }
+
+        // MODAL TOGGLES
+        function showGuideModal() {
+            playSound('click');
+            document.getElementById('guideModal').classList.remove('hidden');
+        }
+        function closeGuideModal() {
+            playSound('click');
+            document.getElementById('guideModal').classList.add('hidden');
+        }
+        function showLeaderboardModal() {
+            playSound('click');
+            renderLeaderboard();
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+        }
+        function closeLeaderboardModal() {
+            playSound('click');
+            document.getElementById('leaderboardModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
